@@ -56,7 +56,7 @@ SELECT first_name, salary
 FROM employees
 WHERE salary < 3000;
 
--- employees테이블에서 first_name컬럼의 값이 'David'일때의 
+-- employees테이블에서 first_name컬럼의 값이 'David'일때의
 -- first_name, salary을 출력하시오.
 SELECT first_name, salary
 FROM employees
