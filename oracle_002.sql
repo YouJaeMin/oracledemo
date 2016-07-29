@@ -185,32 +185,258 @@ select first_name as "사원명", hire_date as "입사일",
 		end as "분기"
 from employees;
 
+--------------------
+그룹함수
+--------------------
+--max(컬럼) : 최대값
+select max(salary)
+from employees;
+
+--min(컬럼) : 최소값
+select min(salary)
+from employees;
+
+--count(컬럼) : 갯수 --컬럼을 넣으면 null값이 있는 레코드는 빼고 알려줌
+select count(commission_pct)
+from employees;
+
+select count(*) -- 모든 레코드수
+from employees;
+
+--sum(컬럼) : 합계
+select sum(salary)
+from employees;
+
+--avg(컬럼) : 평균
+select avg(salary)
+from employees;
+
+
+--그룹 함수는 단순컬럼과 함께 사용 할 수 없다. (출력되는 레코드수가 다르기 때문이다.)
+select first_name, count(*)
+from employees;
+
+--그룹함수와 단순컬럼을 사용하기 위해서는 단순컬럼을 그룹화 해야 한다.(group by 절 사용)
+select department_id, count(*)
+from employees
+group by department_id
+order by department_id;
+
+--NULL이 아닌 부서별의 직원수를 출력하시오
+select department_id, count(*)
+from employees
+where department_id is not null
+------------ group by 절에 대한 조건식을 쓰려면 having을 쓴다.
+group by department_id
+having department_id <= 50
+------------
+order by department_id;
+
+-- 부서별 최소연봉, 최대 연봉을 출력하시오.
+select department_id, min(salary), max(salary)
+from employees
+group by department_id
+--having department_id is not null
+order by department_id;
+
+select department_id, salary
+from employees
+where department_id = 20;
+
+--직업별(job_id) 연봉 합계를 출력하시오.
+select job_id, sum(salary)
+from employees
+group by job_id
+order by job_id;
+
+============================================
+조인(join) : 한개 이상의 테이블에서 원하는 데이터를 추출해주는 쿼리문이다.
+join은 oracle제품에서 사용되는 oracle용 join이 있고 모든 제품에서 공통적으로
+ 사용되는 표준(ansi) join이 있다.
+==============================================
+
+1 cartesian product(카티션 곱) 조인 : 테이블 행의 갯수만큼 출력해주는 조인이다.
+  employees테이블의 행의 갯수가 10이고, job테이블의 행의 갯수가 5개 이면 총 50개의 결과를 출력한다.
+(1) oracle용 cartesian product
+  select e.department_id, e.first_name, e.job_id, j.job_title
+  from employees e ,jobs j;
+  
+  select count(*) from employees;
+  select count(*) from jobs;
+  
+  
+(2) ansi용 cartesian product
+  select e.department_id, e.first_name, e.job_id, j.job_title
+  from employees e cross join jobs j;
+  
+
+2 equi join
+  가장 많이 사용되는 조인방법으로 조인 대상이 되는 두 테이블에서 공통적으로
+  존재하는 컬럼의 값이 일치되는 행을 연결하여 결과를 생성하는 방법이다.
+(1)oracle용 equi join
+select e.first_name, e.salary, e.job_id, j.job_title
+from employees e, jobs j
+where e.job_id=j.job_id;
+(2)ansi용 equi join
+select e.first_name, e.salary, e.job_id, j.job_title
+from employees e join jobs j
+on  (e.job_id=j.job_id);
+	
+-- employees 와 departments 테이블에서 사원번호(employee_id), 부서번호(department_id),
+-- 부서명(department_name)을 검색하시요.
+select e.employee_id, e.department_id, d.department_name
+from employees e, departments d
+where e.department_id=d.department_id;
+
+
+-- employees 와 jobs 테이블에서 사원번호(employee_id), 직업번호(job_id), 직업명(job_title)을 검색하시오.
+select e.employee_id as "사원번호", e.job_id as "직업번호", j.job_title as "직업명"
+from employees e, jobs j
+where e.job_id = j.job_id;
+
+ 
+
+3. non_equi join
+ (=)연산자를 제외한 >=, <=, >, < 등의 연산자를 이용해서 조건을 지정하는 조인방법이다.  
+
+ (1)oracle용 non_equi join 
+ select e.first_name, e.salary, j.job_title
+ from employees e, jobs j
+ where e.job_id=j.job_id
+  and e.salary>=j.min_salary -- 단독으로 사용하지 않는다.
+  and e.salary<=j.max_salary;
+  
+ (2)ansi용 non_equi join
+ select e.first_name, e.salary, j.job_title
+ from employees e  join  jobs j
+  on e.job_id=j.job_id 
+    and e.salary>=j.min_salary
+    and e.salary<=j.max_salary;
+
+    
+    
+ 4 outer join
+  한쪽 테이블에는 데이터가 있고 다른 반대쪽에는 데이터가 없는 경우에 데이터가 있는 
+  테이블의 내용을 모두 가져오는 조인이다. 
+ 
+  oracle용 outer join  
+  select e.first_name, e.employee_id, d.department_id
+  from employees e, departments d
+  where e.department_id=d.department_id(+)
+  order by e.employee_id;
+
+  
+  ansi용 outer join
+  select e.first_name, e.employee_id, d.department_id
+  from employees e  left outer join departments d
+  on( e.department_id=d.department_id)
+ order by e.employee_id;
+
+--employees의 테이블의 데이터는 모두 출력을 하며 부서명이 null일때는 '<미배치>'가
+--출력이 되도록하시오.
+select e.employee_id, e.first_name, nvl(d.department_name, '<미배치>')
+from employees e, departments d
+where e.department_id=d.department_id(+) -- (+)null값도 출력해준다.
+order by e.employee_id;
+
+
+5 self join
+  하나의 테이블을 두개의 테이블로 설정해서 사용하는 조인방법이다. 
+  oracle용  self join
+  select e.employee_id as "사원번호", e.first_name as "사원이름", e.manager_id as "관리자번호", m.first_name as "관리자명"
+  from employees e, employees m
+  where e.manager_id=m.employee_id;  
+  
+ ansi용 self join
+  select e.employee_id, e.first_name, e.manager_id, m.first_name
+  from employees e join employees m
+  on ( e.manager_id=m.employee_id); 
+
+
+select employee_id, first_name, manager_id
+from employees;
 
 
 
 
+--------------------------------------------
+서브쿼리
+외부 쿼리 (주쿼리)
+ :일반 쿼리를 의미합니다.
+스칼라 서브쿼리
+ :SELECT 절에 쿼리가 사용되는 경우로, 함수처럼 레코드당 정확히 하나의 값만을 반환하는 서브쿼리입니다.
+인라인 뷰
+ :FROM 절에 사용되는 쿼리로, 원하는 데이터를 조회하여 가상의 집합을 만들어 조인을 수행하거나 가상의 집합을 다시 조회할 때 사용합니다.
+서브 쿼리
+ :HERE,HAVING 절에 사용되는 쿼리입니다.
+//////////////
+서브쿼리는 하나의 select문장의 절 안에 포함된 또 하나의 select문장이다.
+서브쿼리를 포함하고 있는 쿼리문을 메인쿼리, 포함된 또 하나의 쿼리를 서브쿼리라 한다.
+서브쿼리는 비교연산자의 오른쪽에 기술해야 하고 반드시 괄호 안에 넣어야한다.
+서브쿼리는 메인쿼리가 실행되기 이전에 한번만 실행이 된다.
+서브쿼리는 단일행 서브쿼리와 다중행 서브쿼리로 나눈다.
+단일행 서브쿼리는 오직 하나의 로우(행)로 반환되는 서브쿼리의 결과는 메인쿼리로
+   보내는데 메인 쿼리의 where 절에서는 단일행 비교연산자인 =, >,>=, <, <=, <>를
+   사용해야 한다.
+다중행 서브쿼리는 다중행연산자(in, any(some), all, exists)와 함께 사용해야한다.
+   in : 메인쿼리의 비교조건('='연산자로 비교할 경우)이 서브쿼리의 결과 중에서
+         하나라도 일치하면 참이다.
+   any,some : 메인 쿼리의 비교 조건이 서브 쿼리의 검색 결과와 하나 이상이 일치하면
+          참이다.
+   all : 메인 쿼리의 비교 조건이 서브 쿼리의 검색 결과와 모든 값이 일치하면 참이다.
+   exists : 메인 쿼리의 비교 조건이 서브 쿼리의 결과 중에서 만족하는 값이 하나라도
+          존재하면 참이다.
+//////////
+서브 쿼리 사용:SELECT, FROM, WHERE, HAVING, INSERT문의 VALUES, UPDATE문의 SET, CREATE문
+/////////
+서브쿼리와 조인 비교
+		서브쿼리						
+결과 집합	외부쿼리(메인쿼리) 레벨로 결과 집합이 생성		
+컬럼 사용	외부쿼리의 컬럼을 사용할 수 있지만 서브쿼리의 컬럼을 외부에서 사용할 수 없다.
 
+                조인
+결과 집합	조인되는 테이블간의 곱 레벨이 집합이 생성
+컬럼 사용	조인되는 테이블의 컬럼을 모두 사용할 수 있다.
+//////
+**결과 집합이 하나의 테이블 레벨이고 다른 테이블을 체크의 용도로 사용한다면 조인이 아닌 서브쿼리를 사용해야 합니다.
+---------------------------------------------------------------  
+  
 
+--Lex가 근무하는 부서명을 출력하시오.
+select department_id
+from employees
+where first_name = 'Lex';
 
+select department_name
+from departments
+where department_id = 90;
+----
+select department_name
+from employees e, departments d
+where e.department_id = d.department_id and e.first_name = 'Lex';
+----
+select department_name
+from departments
+where department_id = (select department_id
+						from employees
+						where first_name = 'Lex');	
+-------
+--Lex와 같은 부서에 근무하는 사원의 이름과 부서 번호를 출력하시오.
+select department_id
+from employees
+where first_name = 'Lex';
 
+select first_name, department_id
+from employees
+where department_id = 90;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+select f.first_name, f.department_id
+from employees e, employees f
+where e.department_id = f.department_id and e.first_name = 'Lex';
+-- ?
+select e.first_name, f.department_id
+from employees e, employees f
+where e.department_id = f.department_id and f.first_name = 'Lex';
 
 
 
