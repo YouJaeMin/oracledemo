@@ -438,6 +438,124 @@ select e.first_name, f.department_id
 from employees e, employees f
 where e.department_id = f.department_id and f.first_name = 'Lex';
 
+-- 0801 수업
+
+select first_name, department_id
+from employees
+where department_id = (
+						select department_id
+						from employees
+						where first_name = 'Lex'
+						);
+
+--Steven와 같은 부서에서 근무하는 사원의 이름, 급여, 입사일을 출력하시오.(in)
+select department_id, first_name, salary, hire_date
+from employees
+where department_id in (select department_id
+						from employees
+						where first_name = 'Steven');
+
+-- 부서별로 가장 급여를 많이 받는 사원의 이름, 급여, 부서번호를 출력하시오.(in)
+select first_name, salary, department_id
+from employees
+where (salary, department_id) in (select max(salary), department_id
+						from employees
+						group by department_id
+						)
+order by department_id; -- 서브쿼리에서는 order by절 사용이 안된다.
+						
+						
+--30소속된 사원들 중에서 급여를 가장 많이 받는 사원보다 더 많은 급여를
+--받는 사원의 이름, 급여, 입사일을 출력하시오.(all)
+--(서브쿼리에서 max()함수를 사용하지 않는다.)
+
+select first_name, salary, hire_date
+from EMPLOYEES
+where salary > all(select salary
+						from EMPLOYEES
+						where DEPARTMENT_ID = 30);
+						
+select max(salary)
+from EMPLOYEES
+where DEPARTMENT_ID = 30;
+
+--부서번호가 30번인 사원들이 받는 최저급여보다  높은 급여를 받는 사원의 이름,
+--급여, 입사일을 출력하시오. (min( )함수를 사용하지 않는다)	(any)	
+
+select first_name, salary, hire_date
+from EMPLOYEES
+where salary > any(select salary
+						from EMPLOYEES
+						where DEPARTMENT_ID = 30)
+order by salary;
+
+select min(salary)
+from EMPLOYEES
+where DEPARTMENT_ID = 30;
+
+
+--20번 부서에 속한 사원이 있으면 사원들의 사원명, 입사일, 급여,
+--부서번호를 출력하시오.(exists -> false 이면 수행하지 않는다.)
+select department_id, first_name, hire_date, salary
+from EMPLOYEES
+where exists (select department_id
+				from EMPLOYEES
+				where department_id = 20);
+
+				
+				
+------------------------------------------------------
+Top-N 서브쿼리
+   상위의 값을 추출할때 사용된다.
+   <, <=연산자를 사용할수 있다. 단 비교되는 값이 1일때는 =도 가능하다.
+   order by절을 사용할 수 있다.
+------------------------------------------------------
+-- 급여가 가장높은 상위 3명을 검색 하시오.
+--인라인 뷰 > 테이블에서 사용되는 서브쿼리 -- order by 사용가능
+select b.*
+from (
+		select rownum as rm, a.*
+		from (
+				select first_name, salary
+				from EMPLOYEES
+				order by salary desc) a) b
+where b.rm < 4;
+
+--select rownum, a.first_name, a.salary
+--		from (select first_name, salary
+--				from EMPLOYEES
+--				order by salary desc) a
+--where rownum < 4;
+-- <= 못가지고 오고  rownum = 2; 이런식의 1이상의 값도 못가지고 온다.
+
+ 컬럼이나 행의 갯수에 따라서
+1. 단일 행 서브쿼리
+2. 다중 행 서브쿼리
+3. 단일 컬럼 서브쿼리
+4. 다중 컬럼 서브쿼리
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
