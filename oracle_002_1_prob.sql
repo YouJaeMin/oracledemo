@@ -272,15 +272,15 @@ where salary < (select avg(salary)
 
 --문제개요 :  각 부서의 최소연봉가 20번 부서의 최소연봉보다 
 --많은 부서의 번호와 그부서의 최소연봉를 출력하시오
-select department_id, salary
-from employees
-where (salary, department_id) in (select min(salary), department_id
-						from employees
-						group by department_id
-						) and salary > (select min(salary)
-											from employees
-											where department_id = 20) 
-order by department_id;
+--select department_id, salary
+--from employees
+--where (salary, department_id) in (select min(salary), department_id
+--						from employees
+--						group by department_id
+--						) and salary > (select min(salary)
+--											from employees
+--											where department_id = 20) 
+--order by department_id;
 
 
 select department_id, min(salary)
