@@ -329,6 +329,7 @@ select * from emp08;
 --정상 삽입
 insert into emp09 values (1,10,11);
 insert into emp09 values (2,10,22);
+insert into emp09 values (3,30,22);
 --ORA-02291: 무결성 제약조건(HR.EMP09_LOCNO_FK)이 위배되었습니다- 부모 키가 없습니다
 insert into emp09 values (3,40,15);
 commit
