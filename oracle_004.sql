@@ -25,7 +25,7 @@ l.location_id, l.city
 
 
 
-
+select employee_id, first_name, salary from employees where rownum between 1 and 5 order by employee_id
 
 
 

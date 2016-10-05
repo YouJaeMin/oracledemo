@@ -415,14 +415,3 @@ delete from dept01 where deptno = 10;
  select * from mem order by num;
  commit
  
-  
-
-
-
-
-
-
-
-
-
-
