@@ -6,7 +6,7 @@ department_name
 manager_id
 location_id
 
-
+d
 
 select employee_id, first_name, salary, hire_date 
 from employees 
